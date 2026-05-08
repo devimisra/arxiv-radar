@@ -109,8 +109,8 @@ with st.sidebar:
     else:
         model_choice = model_selection
 
-    category = st.text_input("ArXiv Category", value="cs.LG", key="arxiv_cat_input")
-    interest_text = st.text_area("Research Interests (Use specific technical phrases)", value="Retrieval-Augmented Generation, vector databases, chunking strategies", key="interests_input")
+    category = st.text_input("ArXiv Category", value="astro-ph.HE", key="arxiv_cat_input")
+    interest_text = st.text_area("Research Interests (Use specific technical phrases)", value="supernova, supernova remnants, gamma ray bursts", key="interests_input")
     user_interests = [i.strip() for i in interest_text.split(",") if i.strip()]
     days_val = st.slider("Days Back", 1, 14, 7, key="days_slider")
     score_threshold = st.slider("Min Relevance Score", 0.0, 1.0, 0.50, 0.05, key="score_slider")
