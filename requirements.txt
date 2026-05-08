@@ -1,0 +1,7 @@
+streamlit==1.38.0
+arxiv
+numpy
+pytest
+langchain-huggingface
+huggingface-hub
+sentence-transformers

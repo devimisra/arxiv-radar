@@ -1,0 +1,14 @@
+# Ignore the model cache (it's huge)
+model_cache/
+hf_cache/
+__pycache__/
+*.pyc
+.DS_Store
+.ipynb_checkpoints/
+.streamlit/
+.pytest_cache/
+
+# Ignore virtual environments
+venv/
+env/
+.env
