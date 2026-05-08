@@ -127,7 +127,7 @@ if run_btn:
         st.error("Please enter at least one research interest.")
     else:
         st.info(f"Scanning {category}...")
-        client = arxiv.Client(page_size=100, delay_seconds=3, num_retries=5)
+        client = arxiv.Client(page_size=100, delay_seconds=10, num_retries=15)
         search = arxiv.Search(query=f"cat:{category}", max_results=100, sort_by=arxiv.SortCriterion.LastUpdatedDate)
         cutoff = datetime.now(timezone.utc) - timedelta(days=days_val)
         
