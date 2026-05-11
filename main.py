@@ -32,7 +32,7 @@ with st.expander("How to use this tool"):
             2. Go to your HF Profile Settings > Access Tokens and generate a **"Read"** token.
             3. Paste that token into the sidebar.
 
-    2. **Set Your Filters & Topics:** Define your ArXiv category and input your specific research interests.
+    2. **Set Your Filters & Topics:** Define your ArXiv category and input your specific research interests. Adjust the Min Relevance Score to fine-tune your results. Be careful: set it too high and you might filter out everything; set it too low and the results will lose their specific focus.
         * **Crucial Tip for Topics:** Because this tool uses semantic vector embeddings, you should be as specific as possible. Do not just type "AI" or "Biology". 
         * **Good Example:** "parameter-efficient fine-tuning, LoRA, QLoRA, model quantization"
         * **Good Example:** "exoplanet transit photometry, atmospheric characterization of hot jupiters"
@@ -72,6 +72,28 @@ with st.expander("ArXiv Category Cheat Sheet"):
     * econ.EM: Econometrics
 
     *Need a highly specific field? Find all codes on the Official ArXiv Taxonomy page.*
+    """)
+
+with st.expander("How Relevance Scoring Works (The Math)"):
+    st.markdown("""
+    To move beyond the limitations of simple keyword matching, ArXiv Radar utilizes **Semantic Search** driven by high-dimensional vector math.
+
+    **1. Vector Embeddings (The Mapping Phase)**
+    We use a transformer model (`all-MiniLM-L6-v2`) to convert both your research interests and the ArXiv abstracts into **embeddings**. Think of an embedding as a coordinate in a 384-dimensional space. Words or sentences with similar meanings are placed physically close to each other.
+
+    **2. Cosine Similarity (The Radar Math)**
+    To determine relevance, we measure the mathematical angle between your "Interest Vector" and the "Abstract Vector" using **Cosine Similarity**. 
+    """)
+    
+    st.markdown("$$ \\text{similarity} = \\cos(\\theta) = \\frac{\\mathbf{A} \\cdot \\mathbf{B}}{\\|\\mathbf{A}\\| \\|\\mathbf{B}\\|} $$")
+    
+    st.markdown("""
+    *   **$\\mathbf{A} \\cdot \\mathbf{B}$** is the dot product of the vectors.
+    *   **$\\|\\mathbf{A}\\| \\|\\mathbf{B}\\|$** represents the product of their magnitudes.
+
+    **3. Why this is superior to Keyword Search:**
+    *   **Synonym Awareness:** If you search for "Large Language Models," the radar will still catch a paper titled "Scaling Transformer-based Architectures."
+    *   **Contextual Understanding:** The Radar evaluates your interests as a multi-pronged probe. It calculates a similarity score for *every* topic you provide and surfaces the paper based on its strongest match.
     """)
 
 # --- 4. SIDEBAR ---
