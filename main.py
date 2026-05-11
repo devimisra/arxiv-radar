@@ -26,7 +26,7 @@ To ensure high-signal outputs, our prompt architecture is continuously evaluated
 with st.expander("How to use this tool"):
     st.markdown("""
     1. **Bring Your Own Key (BYOK):** Enter your Hugging Face Token in the sidebar. Your token is never stored or saved by this application.
-        * **No Token?** Leave it blank to use the shared demo token (open models only).
+        * **No Token?** Leave it blank to use the shared demo token (open models only, e.g., Qwen 2.5).
         * **Want Gated Models (e.g., Llama 3.1, Gemma 2)?** 
             1. Visit the model's page on Hugging Face and click **"Acknowledge License"**.
             2. Go to your HF Profile Settings > Access Tokens and generate a **"Read"** token.
