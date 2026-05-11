@@ -32,7 +32,7 @@ with st.expander("How to use this tool"):
             2. Go to your HF Profile Settings > Access Tokens and generate a **"Read"** token.
             3. Paste that token into the sidebar.
 
-    2. **Set Your Filters & Topics:** Define your ArXiv category and input your specific research interests. Adjust the Min Relevance Score to fine-tune your results. Be careful: set it too high and you might filter out everything; set it too low and the results will lose their specific focus.
+    2. **Set Your Filters & Topics:** Define your ArXiv category and input your specific research interests. Adjust the **Min Relevance Score** to fine-tune your results. Be careful: set it too high and you might filter out everything; set it too low and the results will lose their specific focus.
         * **Crucial Tip for Topics:** Because this tool uses semantic vector embeddings, you should be as specific as possible. Do not just type "AI" or "Biology". 
         * **Good Example:** "parameter-efficient fine-tuning, LoRA, QLoRA, model quantization"
         * **Good Example:** "exoplanet transit photometry, atmospheric characterization of hot jupiters"
