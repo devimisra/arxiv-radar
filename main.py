@@ -96,9 +96,9 @@ with st.sidebar:
     
 
     model_options = [
+        "Qwen/Qwen2.5-7B-Instruct", 
         "meta-llama/Meta-Llama-3.1-8B-Instruct",
         "google/gemma-2-9b-it",
-        "Qwen/Qwen2.5-7B-Instruct", 
         "Custom (Enter Model ID)"
     ]
     
