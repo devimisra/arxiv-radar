@@ -11,9 +11,6 @@ def embedding_model():
 # Retrieve the HF Token from the environment or secrets
 HF_TOKEN = os.environ.get("HF_TOKEN")
 
-# Define the model to use for LLM testing
-TEST_LLM_MODEL = "meta-llama/Meta-Llama-3.1-8B-Instruct"
-
 # 1. EVALUATING THE RETRIEVER (EMBEDDINGS)
 def test_embedding_recall(embedding_model):
     """
