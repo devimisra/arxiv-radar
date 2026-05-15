@@ -1,5 +1,3 @@
-markdown_content = """# ArXiv Radar
-
 [Live Demo](https://arxiv-radar.streamlit.app)
 
 **ArXiv Radar** is a stateless, domain-agnostic web application built to help researchers and data scientists filter through the noise of daily scientific publications. 
@@ -41,28 +39,21 @@ This project was designed to demonstrate clean separation of concerns, cost-effi
 ## Running Locally
 
 1. Clone the repository and navigate to the project directory:
-   ```bash
+```bash
    git clone https://github.com/YOUR_USERNAME/arxiv-radar.git
    cd arxiv-radar
-
 ```
 2. Install the required dependencies:
-   ```bash
+```bash
    pip install -r requirements.txt
-
 ```
 3. Set up your local secrets by creating a `.streamlit/secrets.toml` file and adding your Hugging Face API key:
-   ```toml
+```toml
    HF_TOKEN = "your_hf_token_here"
-
 ```
 4. Run the Streamlit application:
-   ```bash
+```bash
    streamlit run main.py
-
 ```
 5. Run the evaluation suite (`test_pipeline.py`):
-   ```bash
-   export HF_TOKEN="your_hf_token_here"
-   pytest test_pipeline.py -v
-   ```
+```bash
