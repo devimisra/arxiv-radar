@@ -14,6 +14,12 @@ def get_cached_model():
 # Correctly assign the cached model
 embedding_model = get_cached_model()
 
+@st.cache_data(ttl=3600) # Cache the raw ArXiv results for 1 hour to prevent 429 errors
+def fetch_arxiv_papers(category, max_results=100):
+    client = arxiv.Client(page_size=100, delay_seconds=10, num_retries=15)
+    search = arxiv.Search(query=f"cat:{category}", max_results=max_results, sort_by=arxiv.SortCriterion.LastUpdatedDate)
+    return list(client.results(search))
+
 # --- 3. MAIN INTERFACE ---
 st.title("ArXiv Research Radar")
 st.markdown("""
@@ -27,8 +33,7 @@ with st.expander("How to use this tool"):
     st.markdown("""
     1. **Bring Your Own Key (BYOK):** Enter your Hugging Face Token in the sidebar. Your token is never stored or saved by this application.
         * **No Token?** Leave it blank to use the shared demo token (open models only, e.g., Qwen 2.5).
-        * **Want Gated Models (e.g., Llama 3.1, Gemma 2)?** 
-            1. Visit the model's page on Hugging Face and click **"Acknowledge License"**.
+        * **Want Gated Models (e.g., Llama 3.1, Gemma 2)?** 1. Visit the model's page on Hugging Face and click **"Acknowledge License"**.
             2. Go to your HF Profile Settings > Access Tokens and generate a **"Read"** token.
             3. Paste that token into the sidebar.
 
@@ -88,12 +93,12 @@ with st.expander("How Relevance Scoring Works (The Math)"):
     st.markdown("$$ \\text{similarity} = \\cos(\\theta) = \\frac{\\mathbf{A} \\cdot \\mathbf{B}}{\\|\\mathbf{A}\\| \\|\\mathbf{B}\\|} $$")
     
     st.markdown("""
-    *   **$\\mathbf{A} \\cdot \\mathbf{B}$** is the dot product of the vectors.
-    *   **$\\|\\mathbf{A}\\| \\|\\mathbf{B}\\|$** represents the product of their magnitudes.
+    * **$\\mathbf{A} \\cdot \\mathbf{B}$** is the dot product of the vectors.
+    * **$\\|\\mathbf{A}\\| \\|\\mathbf{B}\\|$** represents the product of their magnitudes.
 
     **3. Why this is superior to Keyword Search:**
-    *   **Synonym Awareness:** If you search for "Large Language Models," the radar will still catch a paper titled "Scaling Transformer-based Architectures."
-    *   **Contextual Understanding:** The Radar evaluates your interests as a multi-pronged probe. It calculates a similarity score for *every* topic you provide and surfaces the paper based on its strongest match.
+    * **Synonym Awareness:** If you search for "Large Language Models," the radar will still catch a paper titled "Scaling Transformer-based Architectures."
+    * **Contextual Understanding:** The Radar evaluates your interests as a multi-pronged probe. It calculates a similarity score for *every* topic you provide and surfaces the paper based on its strongest match.
     """)
 
 # --- 4. SIDEBAR ---
@@ -149,12 +154,12 @@ if run_btn:
         st.error("Please enter at least one research interest.")
     else:
         st.info(f"Scanning {category}...")
-        client = arxiv.Client(page_size=100, delay_seconds=10, num_retries=15)
-        search = arxiv.Search(query=f"cat:{category}", max_results=100, sort_by=arxiv.SortCriterion.LastUpdatedDate)
         cutoff = datetime.now(timezone.utc) - timedelta(days=days_val)
         
         try:
-            results = list(client.results(search))
+            # Using the newly cached function!
+            results = fetch_arxiv_papers(category, max_results=100)
+            
             if not results:
                 st.warning("No papers found in the specified timeframe.")
             else:
