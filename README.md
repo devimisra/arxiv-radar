@@ -57,3 +57,6 @@ This project was designed to demonstrate clean separation of concerns, cost-effi
 ```
 5. Run the evaluation suite (`test_pipeline.py`):
 ```bash
+   export HF_TOKEN="your_hf_token_here"
+   pytest test_pipeline.py -v
+```
