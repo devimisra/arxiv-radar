@@ -11,42 +11,59 @@ def embedding_model():
 # Retrieve the HF Token from the environment or secrets
 HF_TOKEN = os.environ.get("HF_TOKEN")
 
-# 1. EVALUATING THE RETRIEVER (EMBEDDINGS)
-def test_embedding_recall(embedding_model):
+# --- 1. EVALUATING THE RETRIEVER (EMBEDDINGS) ---
+def test_retrieval_mrr_and_hit_rate(embedding_model):
     """
-    Evaluates if the embedding model correctly scores semantic relevance.
-    It tests against a 'Golden Dataset' of known positive and negative matches.
+    Evaluates the RAG retrieval layer using Mean Reciprocal Rank (MRR) and Hit Rate@K.
+    This simulates a search engine ranking to detect context drift over time.
     """
-    eval_data = [
-        {
-            "abstract": "We present a new method for 4-bit quantization using double quantization to reduce memory footprint...",
-            "positive_query": "model quantization techniques",
-            "negative_query": "black hole event horizons",
-            "expected_min_score": 0.50
-        },
-        {
-            "abstract": "This paper explores reinforcement learning from human feedback (RLHF) to align language models...",
-            "positive_query": "LLM alignment and RLHF",
-            "negative_query": "cellular biology and mitosis",
-            # all-MiniLM-L6-v2 is a smaller 384d model, so acronym mapping (RLHF) yields slightly lower baseline scores.
-            "expected_min_score": 0.35
-        }
+    # 1. A static 'baseline matrix' of papers to search against
+    mock_corpus = [
+        {"id": "1", "text": "We present a new method for 4-bit quantization using double quantization to reduce memory footprint..."},
+        {"id": "2", "text": "This paper explores reinforcement learning from human feedback (RLHF) to align language models..."},
+        {"id": "3", "text": "Our research maps the gaseous envelope of a hot Jupiter during transit to detect water vapor signatures..."},
+        {"id": "4", "text": "Analyzing the maximum a posteriori log-likelihood of spider pulsar kinematics in the Milky Way..."}
     ]
 
-    for data in eval_data:
-        # 1. Calculate scores
-        pos_score = get_relevance_score(data["abstract"], [data["positive_query"]], embedding_model)
-        neg_score = get_relevance_score(data["abstract"], [data["negative_query"]], embedding_model)
+    # 2. The Golden Dataset: Queries mapped to their expected #1 paper
+    golden_dataset = [
+        {"query": "model quantization techniques", "expected_id": "1"},
+        {"query": "LLM alignment and RLHF", "expected_id": "2"},
+        {"query": "exoplanet atmospheric characterization", "expected_id": "3"}
+    ]
+
+    mrr_scores = []
+    hit_rate_k = 3
+
+    for data in golden_dataset:
+        scored_papers = []
         
-        # 2. Assertions (If these fail, the test fails)
-        assert pos_score >= data["expected_min_score"], \
-            f"Positive query scored too low: {pos_score:.2f} (Expected > {data['expected_min_score']})"
+        # Score every paper in the corpus against the query
+        for paper in mock_corpus:
+            score = get_relevance_score(paper["text"], [data["query"]], embedding_model)
+            scored_papers.append((paper["id"], score))
             
-        assert pos_score > (neg_score + 0.2), \
-            f"Model couldn't differentiate! Pos: {pos_score:.2f}, Neg: {neg_score:.2f}"
+        # Sort papers by score descending (simulating the search ranking)
+        scored_papers.sort(key=lambda x: x[1], reverse=True)
+        
+        # Find the rank position of the expected ground-truth paper
+        rank = next((i + 1 for i, p in enumerate(scored_papers) if p[0] == data["expected_id"]), 0)
+        
+        # Evaluate Hit Rate@3
+        assert 0 < rank <= hit_rate_k, f"Hit Rate@{hit_rate_k} Failed! Expected paper {data['expected_id']} dropped to rank {rank}."
+        
+        # Calculate Reciprocal Rank
+        if rank > 0:
+            mrr_scores.append(1.0 / rank)
+        else:
+            mrr_scores.append(0.0)
+
+    # 3. Evaluate aggregate MRR
+    total_mrr = sum(mrr_scores) / len(mrr_scores)
+    assert total_mrr >= 0.60, f"Context drift detected! Total MRR dropped to {total_mrr:.2f}"
 
 
-# 2. EVALUATING THE GENERATOR (LLM)
+# --- 2. EVALUATING THE GENERATOR (LLM) ---
 # List the models you want to evaluate
 MODELS_TO_TEST = [
     "Qwen/Qwen2.5-7B-Instruct"
