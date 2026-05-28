@@ -1,6 +1,8 @@
-[![CI/CD Pipeline](https://github.com/devimisra/arxiv-radar/actions/workflows/python-app.yml/badge.svg)](https://github.com/devimisra/arxiv-radar/actions)
-[![Python 3.10+](https://img.shields.io/badge/python-3.10+-blue.svg)](https://www.python.org/downloads/)
-[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
+<p align="center">
+  <a href="https://github.com/devimisra/arxiv-radar/actions"><img src="https://github.com/devimisra/arxiv-radar/actions/workflows/python-app.yml/badge.svg" alt="CI/CD Pipeline"></a>
+  <a href="https://www.python.org/downloads/"><img src="https://img.shields.io/badge/python-3.10+-blue.svg" alt="Python 3.10+"></a>
+  <a href="https://opensource.org/licenses/MIT"><img src="https://img.shields.io/badge/License-MIT-yellow.svg" alt="License: MIT"></a>
+</p>
 
 **Taming the ArXiv Firehose: Building a Serverless RAG Pipeline for Paper Discovery**
 
@@ -8,7 +10,7 @@
 
 **ArXiv Radar** is a domain-agnostic data pipeline designed to filter the daily noise of scientific publications. Moving beyond traditional keyword matching, this tool uses 384-dimensional vector embeddings to score ArXiv papers based on semantic relevance, and open-weights Large Language Models (LLMs) to generate strict, one-sentence technical insights for top-ranking papers.
 
-![ArXiv Radar Architecture](architecture.png) 
+<img src="architecture.png" alt="ArXiv Radar Architecture" width="600">
 
 ## How to Use ArXiv Radar
 1. **Provide a Token (BYOK):** Navigate to your Hugging Face account settings, generate a "Read" access token, and securely enter it in the app's sidebar. The application is stateless; your token is only used for the active session and is never stored.
