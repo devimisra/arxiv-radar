@@ -10,7 +10,7 @@
 
 **ArXiv Radar** is a domain-agnostic data pipeline designed to filter the daily noise of scientific publications. Moving beyond traditional keyword matching, this tool uses 384-dimensional vector embeddings to score ArXiv papers based on semantic relevance, and open-weights Large Language Models (LLMs) to generate strict, one-sentence technical insights for top-ranking papers.
 
-<img src="architecture.png" alt="ArXiv Radar Architecture" width="200"/>
+<img src="architecture.png" alt="ArXiv Radar Architecture" width="150"/>
 
 ## How to Use ArXiv Radar
 1. **Provide a Token (BYOK):** Navigate to your Hugging Face account settings, generate a "Read" access token, and securely enter it in the app's sidebar. The application is stateless; your token is only used for the active session and is never stored.
