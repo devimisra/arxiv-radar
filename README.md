@@ -1,8 +1,14 @@
+[![CI/CD Pipeline](https://github.com/devimisra/arxiv-radar/actions/workflows/python-app.yml/badge.svg)](https://github.com/devimisra/arxiv-radar/actions)
+[![Python 3.10+](https://img.shields.io/badge/python-3.10+-blue.svg)](https://www.python.org/downloads/)
+[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
+
+**Taming the ArXiv Firehose: Building a Serverless RAG Pipeline for Paper Discovery**
+
 [Live Demo](https://arxiv-radar.streamlit.app)
 
-**ArXiv Radar** is a stateless, domain-agnostic web application built to help researchers and data scientists filter through the noise of daily scientific publications. 
+**ArXiv Radar** is a domain-agnostic data pipeline designed to filter the daily noise of scientific publications. Moving beyond traditional keyword matching, this tool uses 384-dimensional vector embeddings to score ArXiv papers based on semantic relevance, and open-weights Large Language Models (LLMs) to generate strict, one-sentence technical insights for top-ranking papers.
 
-Transitioning from local scripts to a serverless architecture, this tool uses high-dimensional vector embeddings to score ArXiv papers based on semantic relevance, and open-weights Large Language Models (LLMs) to generate strict, one-sentence technical insights for top-ranking papers.
+![ArXiv Radar Architecture](architecture.png) 
 
 ## How to Use ArXiv Radar
 1. **Provide a Token (BYOK):** Navigate to your Hugging Face account settings, generate a "Read" access token, and securely enter it in the app's sidebar. The application is stateless; your token is only used for the active session and is never stored.
