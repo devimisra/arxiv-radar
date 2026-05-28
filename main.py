@@ -145,6 +145,12 @@ with st.sidebar:
     run_btn = st.button("Start Radar Scan", type="primary", key="run_scan_btn", use_container_width=True)
 
 # --- 5. MAIN EXECUTION ---
+# Initialize session state to hold our results so they survive button clicks (like downloading)
+if "scan_complete" not in st.session_state:
+    st.session_state.scan_complete = False
+if "filtered_papers" not in st.session_state:
+    st.session_state.filtered_papers = []
+
 if run_btn:
     if not active_token:
         st.error("Please provide a Hugging Face Token.")
@@ -153,60 +159,87 @@ if run_btn:
     elif not user_interests:
         st.error("Please enter at least one research interest.")
     else:
-        st.info(f"Scanning {category}...")
+        # Reset state for a new scan
+        st.session_state.filtered_papers = []
+        st.session_state.scan_complete = False
+        
         cutoff = datetime.now(timezone.utc) - timedelta(days=days_val)
         
         try:
-            # Using the newly cached function!
-            results = fetch_arxiv_papers(category, max_results=100)
-            
-            if not results:
-                st.warning("No papers found in the specified timeframe.")
-            else:
-                progress = st.progress(0)
-                filtered_papers = []
+            # Use st.status for the "Illusion of Labor" - showing granular enterprise loading states
+            with st.status("Initializing ArXiv Radar...", expanded=True) as status:
                 
-                for i, paper in enumerate(results):
-                    progress.progress((i + 1) / len(results))
-                    pub_date = paper.updated.replace(tzinfo=timezone.utc)
-                    if pub_date < cutoff: continue
-                    
-                    score = get_relevance_score(paper.summary, user_interests, embedding_model)
-                    if score >= score_threshold:
-                        paper_data = {
-                            "title": paper.title,
-                            "url": paper.pdf_url,
-                            "published": pub_date.strftime('%Y-%m-%d'),
-                            "summary": paper.summary.replace('\n', ' '),
-                            "score": score,
-                            "ai_insight": ""
-                        }
-                        
-                        with st.expander(f"({score:.2f}) {paper.title}", expanded=True):
-                            st.write(f"**Published:** {paper_data['published']}")
-                            with st.spinner("Analyzing abstract..."):
-                                summary = generate_insights(paper.summary, active_token, model_choice)
-                                paper_data["ai_insight"] = summary
-                            st.write(f"**AI Insights:** {summary}")
-                            st.link_button("Read Paper", paper.pdf_url)
-                            
-                        filtered_papers.append(paper_data)
-                        
-                progress.empty()
+                status.update(label=f"Fetching {category} abstracts from ArXiv...", state="running")
+                results = fetch_arxiv_papers(category, max_results=100)
                 
-                if not filtered_papers:
-                    st.warning("No matches found meeting your relevance threshold. Try lowering the minimum score or using different keywords.")
+                if not results:
+                    status.update(label="No papers found.", state="error")
+                    st.warning("No papers found in the specified timeframe.")
                 else:
-                    st.success(f"Scan complete. Found {len(filtered_papers)} highly relevant papers.")
+                    status.update(label=f"Computing in-memory vector embeddings for {len(results)} papers...", state="running")
                     
-                    md_report = generate_markdown_report(filtered_papers, category, model_choice.split('/')[-1])
-                    st.download_button(
-                        label="Download Full Report (Markdown)",
-                        data=md_report,
-                        file_name=f"ArXiv_Radar_{category}_{datetime.now().strftime('%Y%m%d')}.md",
-                        mime="text/markdown",
-                        use_container_width=True
-                    )
+                    # Pre-filter papers using the embedding model BEFORE calling the LLM
+                    top_candidates = []
+                    for paper in results:
+                        pub_date = paper.updated.replace(tzinfo=timezone.utc)
+                        if pub_date < cutoff: continue
+                        
+                        score = get_relevance_score(paper.summary, user_interests, embedding_model)
+                        if score >= score_threshold:
+                            top_candidates.append({
+                                "paper_obj": paper,
+                                "pub_date": pub_date.strftime('%Y-%m-%d'),
+                                "score": score
+                            })
                     
+                    if not top_candidates:
+                        status.update(label="Filtering complete.", state="complete")
+                        st.warning("No matches found meeting your relevance threshold. Try lowering the minimum score.")
+                    else:
+                        status.update(label=f"Synthesizing insights via {model_choice.split('/')[-1]}...", state="running")
+                        
+                        # Generate insights only for the filtered papers
+                        for item in top_candidates:
+                            paper = item["paper_obj"]
+                            summary = generate_insights(paper.summary, active_token, model_choice)
+                            
+                            st.session_state.filtered_papers.append({
+                                "title": paper.title,
+                                "url": paper.pdf_url,
+                                "published": item["pub_date"],
+                                "summary": paper.summary.replace('\n', ' '),
+                                "score": item["score"],
+                                "ai_insight": summary
+                            })
+                            
+                        status.update(label="Radar scan complete!", state="complete", expanded=False)
+                        st.session_state.scan_complete = True
+
         except Exception as e:
-            st.error(f"ArXiv API Error: {e}")
+            # Graceful Rate Limit Handling
+            error_msg = str(e).lower()
+            if "429" in error_msg or "too many requests" in error_msg or "http" in error_msg:
+                st.warning("ArXiv servers are currently experiencing high traffic (HTTP 429). Caching is active, but new fetches are temporarily delayed. Please wait a few minutes and try again.")
+            else:
+                st.error(f"Pipeline Error: {e}")
+
+# --- 6. RENDER RESULTS ---
+# By rendering outside the 'if run_btn' block using session state, the UI survives the download button click.
+if st.session_state.scan_complete and st.session_state.filtered_papers:
+    st.success(f"Found {len(st.session_state.filtered_papers)} highly relevant papers.")
+    
+    for paper_data in st.session_state.filtered_papers:
+        with st.expander(f"({paper_data['score']:.2f}) {paper_data['title']}", expanded=True):
+            st.write(f"**Published:** {paper_data['published']}")
+            st.write(f"**AI Insights:** {paper_data['ai_insight']}")
+            st.link_button("Read Paper", paper_data['url'])
+            
+    # Markdown Export
+    md_report = generate_markdown_report(st.session_state.filtered_papers, category, model_choice.split('/')[-1])
+    st.download_button(
+        label="Download Full Report (Markdown)",
+        data=md_report,
+        file_name=f"ArXiv_Radar_{category}_{datetime.now().strftime('%Y%m%d')}.md",
+        mime="text/markdown",
+        use_container_width=True
+    )
