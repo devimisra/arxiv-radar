@@ -1,8 +1,6 @@
-<p align="center">
-  <a href="https://github.com/devimisra/arxiv-radar/actions/workflows/test.yml"><img src="https://github.com/devimisra/arxiv-radar/actions/workflows/test.yml/badge.svg?branch=main" alt="CI/CD Pipeline"></a>
-  <a href="https://www.python.org/downloads/"><img src="https://img.shields.io/badge/python-3.10+-blue.svg" alt="Python 3.10+"></a>
-  <a href="https://opensource.org/licenses/MIT"><img src="https://img.shields.io/badge/License-MIT-yellow.svg" alt="License: MIT"></a>
-</p>
+<a href="https://github.com/devimisra/arxiv-radar/actions/workflows/test.yml"><img src="https://github.com/devimisra/arxiv-radar/actions/workflows/test.yml/badge.svg?branch=main" alt="CI/CD Pipeline"></a>
+<a href="https://www.python.org/downloads/"><img src="https://img.shields.io/badge/python-3.10+-blue.svg" alt="Python 3.10+"></a>
+<a href="https://opensource.org/licenses/MIT"><img src="https://img.shields.io/badge/License-MIT-yellow.svg" alt="License: MIT"></a>
 
 **Taming the ArXiv Firehose: Building a Serverless RAG Pipeline for Paper Discovery**
 
