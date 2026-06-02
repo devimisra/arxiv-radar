@@ -26,7 +26,7 @@ st.markdown("""
 Welcome to **ArXiv Radar**, your automated research assistant. This tool scans ArXiv for the latest papers, filters them based on the semantic meaning of your interests, and uses AI to extract technical insights.
 
 **System Reliability:**
-To ensure high-signal outputs, our prompt architecture is continuously evaluated via an automated CI/CD pipeline. Using a baseline "golden dataset" and our default open model (Qwen 2.5), the system is verified to achieve **100% adherence** to strict formatting constraints (maximum one-sentence hooks) and zero hallucination of conversational filler. Advanced models (Llama 3.1, Gemma 2) inherit this strict architecture and are seamlessly supported via the BYOK interface.
+To ensure high-signal outputs, this architecture is continuously evaluated via an automated CI/CD pipeline. Using a baseline "golden dataset," the vector retrieval layer is monitored for context drift using **Mean Reciprocal Rank (MRR)** and **Hit Rate@K** metrics. Furthermore, the generative phase is verified to achieve 100% adherence to strict formatting constraints (maximum one-sentence hooks) and zero hallucination of conversational filler. Advanced models (Llama 3.1, Gemma 2) inherit this strict architecture and are seamlessly supported via the BYOK interface.
 """)
 
 with st.expander("How to use this tool"):

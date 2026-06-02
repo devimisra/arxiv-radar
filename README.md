@@ -27,16 +27,18 @@ Because this tool uses semantic vector embeddings rather than simple CTRL+F keyw
 * **Good Example:** `parameter-efficient fine-tuning for large language models, LoRA, QLoRA, quantization techniques` 
   *(Highly specific. The embedding model will capture the mathematical meaning of these concepts and find papers discussing them, even if those exact words are not in the abstract).*
 
-## Architecture & Evaluation
-This project was designed to demonstrate clean separation of concerns, cost-efficient deployment, and rigorous prompt engineering.
+## Architecture & Production Constraints
+This project was designed to demonstrate clean separation of concerns, cost-efficient deployment, and rigorous evaluation metrics.
 
-* **Serverless BYOK:** Implements a stateless architecture with zero database overhead. Users securely input their own tokens to dynamically route inference, making the app infinitely scalable.
-* **Infrastructure Resilience:** Implements aggressive exponential backoff, retry logic, and memory caching (`@st.cache_data`) to prevent `HTTP 429 (Too Many Requests)` firewall blocks from the ArXiv API in shared-IP cloud environments.
-* **Separation of Concerns:** Business logic (vector math, API routing) is completely decoupled from the UI layer (`main.py`), allowing for isolated automated testing.
-* **Automated CI/CD Testing (`test_pipeline.py`):** A custom, parameterized `pytest` suite runs automatically via GitHub Actions on every code push. This pipeline guarantees system reliability by evaluating:
-  * **Embedding Recall:** Ensures cosine similarity thresholds correctly isolate highly relevant papers using a baseline "golden dataset" of positive and negative queries.
-  * **LLM Constraint Adherence:** Verifies the core prompt architecture (benchmarked continuously against our default model, Qwen 2.5) strictly adheres to structural formatting (`TAGS:` and `HOOK:`) and one-sentence maximums without hallucinating conversational filler.
+* **Multi-Tiered BYOK Architecture:** Implements a hybrid compute model. Users can rely on zero-configuration defaults or inject personal tokens to access massive 70B parameter models, shifting heavy inference loads back to individual quotas and preventing central API exhaustion.
+* **Infrastructure Resilience:** Utilizes aggressive exponential backoff, retry logic, and memory caching (`@st.cache_data`) to prevent `HTTP 429 (Too Many Requests)` blocks from the ArXiv API in shared-IP cloud environments.
+* **Decoupled for Orchestration:** The ingestion logic, vector math (NumPy), and presentation layer (`main.py`) are strictly separated. In an enterprise topology, the backend modules can be lifted out of the Streamlit loop and scheduled via workflow orchestrators like **Apache Airflow**.
 
+## Automated CI/CD Testing (`test_pipeline.py`)
+A parameterized `pytest` suite runs automatically via GitHub Actions on every code push, treating the RAG pipeline with standard software engineering rigor:
+
+* **Quantifying Retrieval Accuracy:** Evaluates the in-memory NumPy similarity search against an annotated "golden dataset." The pipeline benchmarks ranking performance using **Mean Reciprocal Rank (MRR)** and **Hit Rate@K**, alerting engineers to contextual drift if ground-truth papers fall below rank thresholds.
+* **LLM Constraint Adherence:** Verifies the generation phase strictly adheres to structural formatting (`TAGS:` and `HOOK:`) and one-sentence maximums without hallucinating conversational filler.
 ## Technology Stack
 * **Frontend/Hosting:** Streamlit Community Cloud
 * **Embeddings:** `sentence-transformers` (`all-MiniLM-L6-v2`), `numpy`
