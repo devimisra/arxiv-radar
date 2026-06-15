@@ -2,9 +2,16 @@ from langchain_huggingface import HuggingFaceEmbeddings
 from huggingface_hub import InferenceClient
 import numpy as np
 from datetime import datetime, timezone
+import arxiv
 
 def load_embedding_model():
     return HuggingFaceEmbeddings(model_name="sentence-transformers/all-MiniLM-L6-v2")
+
+def fetch_arxiv_papers(category, max_results=100):
+    """Pure Python fetcher, safe for workflow orchestrators."""
+    client = arxiv.Client(page_size=100, delay_seconds=10, num_retries=15)
+    search = arxiv.Search(query=f"cat:{category}", max_results=max_results, sort_by=arxiv.SortCriterion.LastUpdatedDate)
+    return list(client.results(search))
 
 def get_relevance_score(text, queries, embedding_model): 
     text_vec = embedding_model.embed_query(text.lower())
@@ -16,6 +23,23 @@ def get_relevance_score(text, queries, embedding_model):
         score = np.dot(q_vec, text_vec) / (q_norm * text_norm) if q_norm > 0 else 0
         scores.append(score)
     return max(scores) if scores else 0.0
+
+def filter_papers(papers, cutoff_date, user_interests, embedding_model, score_threshold):
+    """Decoupled pre-filtering loop."""
+    top_candidates = []
+    for paper in papers:
+        pub_date = paper.updated.replace(tzinfo=timezone.utc)
+        if pub_date < cutoff_date: 
+            continue
+        
+        score = get_relevance_score(paper.summary, user_interests, embedding_model)
+        if score >= score_threshold:
+            top_candidates.append({
+                "paper_obj": paper,
+                "pub_date": pub_date.strftime('%Y-%m-%d'),
+                "score": score
+            })
+    return top_candidates
 
 def generate_insights(abstract, hf_token, model_id):
     client = InferenceClient(api_key=hf_token)

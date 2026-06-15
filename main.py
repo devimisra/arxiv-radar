@@ -1,7 +1,13 @@
 import streamlit as st
-import arxiv
 from datetime import datetime, timedelta, timezone
-from utils import load_embedding_model, get_relevance_score, generate_insights, generate_markdown_report
+from utils import (
+    load_embedding_model, 
+    get_relevance_score, 
+    generate_insights, 
+    generate_markdown_report,
+    fetch_arxiv_papers,
+    filter_papers
+)
 
 # --- 1. PAGE SETUP ---
 st.set_page_config(page_title="ArXiv Radar", layout="wide")
@@ -15,10 +21,9 @@ def get_cached_model():
 embedding_model = get_cached_model()
 
 @st.cache_data(ttl=3600) # Cache the raw ArXiv results for 1 hour to prevent 429 errors
-def fetch_arxiv_papers(category, max_results=100):
-    client = arxiv.Client(page_size=100, delay_seconds=10, num_retries=15)
-    search = arxiv.Search(query=f"cat:{category}", max_results=max_results, sort_by=arxiv.SortCriterion.LastUpdatedDate)
-    return list(client.results(search))
+def cached_fetch(category, max_results=100):
+    """Wraps the decoupled fetcher to maintain Streamlit UI caching."""
+    return fetch_arxiv_papers(category, max_results)
 
 # --- 3. MAIN INTERFACE ---
 st.title("ArXiv Research Radar")
@@ -122,7 +127,6 @@ with st.sidebar:
         st.success("Custom AI Engine Authenticated")
     else:
         st.warning("Using shared Demo Token. You may experience rate limits. For heavy use, please enter your own token or clone the repository.")
-    
 
     model_options = [
         "Qwen/Qwen2.5-7B-Instruct", 
@@ -172,7 +176,7 @@ if run_btn:
             with st.status("Initializing ArXiv Radar...", expanded=True) as status:
                 
                 status.update(label=f"Fetching {category} abstracts from ArXiv...", state="running")
-                results = fetch_arxiv_papers(category, max_results=100)
+                results = cached_fetch(category, max_results=100)
                 
                 if not results:
                     status.update(label="No papers found.", state="error")
@@ -180,19 +184,8 @@ if run_btn:
                 else:
                     status.update(label=f"Computing in-memory vector embeddings for {len(results)} papers...", state="running")
                     
-                    # Pre-filter papers using the embedding model BEFORE calling the LLM
-                    top_candidates = []
-                    for paper in results:
-                        pub_date = paper.updated.replace(tzinfo=timezone.utc)
-                        if pub_date < cutoff: continue
-                        
-                        score = get_relevance_score(paper.summary, user_interests, embedding_model)
-                        if score >= score_threshold:
-                            top_candidates.append({
-                                "paper_obj": paper,
-                                "pub_date": pub_date.strftime('%Y-%m-%d'),
-                                "score": score
-                            })
+                    # Pre-filter papers using the decoupled embedding logic BEFORE calling the LLM
+                    top_candidates = filter_papers(results, cutoff, user_interests, embedding_model, score_threshold)
                     
                     if not top_candidates:
                         status.update(label="Filtering complete.", state="complete")

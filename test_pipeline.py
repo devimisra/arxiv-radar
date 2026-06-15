@@ -1,6 +1,7 @@
 import os
 import pytest
-from utils import load_embedding_model, get_relevance_score, generate_insights
+from datetime import datetime, timedelta, timezone
+from utils import load_embedding_model, get_relevance_score, generate_insights, filter_papers
 
 # Load the model once for all tests to save time
 @pytest.fixture(scope="module")
@@ -94,3 +95,36 @@ def test_llm_constraints(model_id):
     lower_insight = insight.lower()
     assert not lower_insight.startswith("here is"), f"[{model_id}] Failed: Included conversational filler."
     assert not lower_insight.startswith("sure"), f"[{model_id}] Failed: Included conversational filler."
+
+# --- 3. EVALUATING THE FILTERING LOGIC ---
+def test_filter_papers(embedding_model):
+    """
+    Validates that papers are correctly filtered by both date and relevance threshold.
+    """
+    class MockPaper:
+        def __init__(self, updated, summary):
+            self.updated = updated
+            self.summary = summary
+
+    now = datetime.now(timezone.utc)
+    
+    mock_papers = [
+        # Paper 1: Highly relevant, published today
+        MockPaper(now, "A detailed study on parameter-efficient fine-tuning and LoRA techniques."),
+        # Paper 2: Highly relevant, but published 10 days ago
+        MockPaper(now - timedelta(days=10), "An old paper about LoRA and model quantization."),
+        # Paper 3: Irrelevant, published today
+        MockPaper(now, "A sociological study on ancient Roman aqueducts.")
+    ]
+
+    cutoff_date = now - timedelta(days=7)
+    user_interests = ["LoRA, quantization"]
+    score_threshold = 0.40
+
+    filtered_results = filter_papers(
+        mock_papers, cutoff_date, user_interests, embedding_model, score_threshold
+    )
+
+    # Assertions
+    assert len(filtered_results) == 1, f"Expected 1 paper, got {len(filtered_results)}"
+    assert filtered_results[0]["score"] >= score_threshold, "Failed threshold check."
