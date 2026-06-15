@@ -118,7 +118,7 @@ def test_filter_papers(embedding_model):
     ]
 
     cutoff_date = now - timedelta(days=7)
-    user_interests = ["LoRA, quantization"]
+    user_interests = ["LoRA", "quantization"]
     score_threshold = 0.40
 
     filtered_results = filter_papers(
