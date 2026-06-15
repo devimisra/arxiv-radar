@@ -2,7 +2,7 @@
 <a href="https://www.python.org/downloads/"><img src="https://img.shields.io/badge/python-3.10+-blue.svg" alt="Python 3.10+"></a>
 <a href="https://opensource.org/licenses/MIT"><img src="https://img.shields.io/badge/License-MIT-yellow.svg" alt="License: MIT"></a>
 
-**Taming the ArXiv Firehose: Building a Serverless RAG Pipeline for Paper Discovery**
+**Building a Serverless RAG Pipeline for Paper Discovery on ArXiv**
 
 [Live Demo](https://arxiv-radar.streamlit.app)
 
@@ -41,6 +41,7 @@ score = get_relevance_score(paper_abstract, interests, embedding_model)
 if score > 0.50:
     insight = generate_insights(paper_abstract, hf_token, "meta-llama/Meta-Llama-3.1-8B-Instruct")
     print(insight)
+```
 
 ## Formulating Your Research Topics
 Because this tool uses semantic vector embeddings rather than simple CTRL+F keyword matching, **context matters**. To get the best results, you should be highly specific in your research topics.
