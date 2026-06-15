@@ -117,9 +117,11 @@ with st.sidebar:
     active_token = user_token if user_token else backend_token
     
     if not active_token:
-        st.warning("Token required for AI insights.")
+        st.error("Token required for AI insights.")
+    elif user_token:
+        st.success("Custom AI Engine Authenticated")
     else:
-        st.success("AI Engine Authenticated")
+        st.warning("Using shared Demo Token. You may experience rate limits. For heavy use, please enter your own token or clone the repository.")
     
 
     model_options = [

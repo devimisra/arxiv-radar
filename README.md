@@ -19,6 +19,29 @@
 4. **Select an AI Model:** Choose an open-weights model (e.g., Llama 3.1, Gemma 2, or Qwen) to generate the technical hooks.
 5. **Scan and Export:** Execute the scan to filter the latest papers. Review the results in the UI and download your curated daily reading list as a clean Markdown (`.md`) file.
 
+## Using the Pipeline Programmatically
+ArXiv Radar is built with strict separation of concerns. You do not need to use the Streamlit interface to leverage the RAG pipeline. Because it relies on free-to-use open-weights models and serverless Hugging Face endpoints, you can easily integrate the core engine into your own data pipelines, cron jobs, or Airflow DAGs.
+
+Here is how to run the pipeline using the decoupled modules:
+
+```python
+from utils import load_embedding_model, get_relevance_score, generate_insights
+import os
+
+# 1. Initialize 
+hf_token = os.getenv("HF_TOKEN")
+embedding_model = load_embedding_model()
+
+# 2. Score text against your specific technical interests
+paper_abstract = "..."
+interests = ["parameter-efficient fine-tuning", "model quantization"]
+score = get_relevance_score(paper_abstract, interests, embedding_model)
+
+# 3. Generate structured insights via Open-Weights LLMs (e.g., Llama 3.1)
+if score > 0.50:
+    insight = generate_insights(paper_abstract, hf_token, "meta-llama/Meta-Llama-3.1-8B-Instruct")
+    print(insight)
+
 ## Formulating Your Research Topics
 Because this tool uses semantic vector embeddings rather than simple CTRL+F keyword matching, **context matters**. To get the best results, you should be highly specific in your research topics.
 
