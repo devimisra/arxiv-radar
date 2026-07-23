@@ -8,7 +8,7 @@
 
 **ArXiv Radar** is a domain-agnostic data pipeline designed to filter the daily noise of scientific publications. Moving beyond traditional keyword matching, this tool uses 384-dimensional vector embeddings to score ArXiv papers based on semantic relevance, and open-weights Large Language Models (LLMs) to generate strict, one-sentence technical insights for top-ranking papers.
 
-## Key Features:
+## Key Features
 1. **Semantic Search:** 384-dimensional vector retrieval (in-memory, no heavy databases).
 2. **BYOK Architecture:** Distributes API loads to prevent rate-limiting bottlenecks.
 3. **CI/CD Monitored:** Automated testing for Retrieval Accuracy (MRR) and LLM hallucinations.
