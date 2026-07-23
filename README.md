@@ -2,11 +2,17 @@
 <a href="https://www.python.org/downloads/"><img src="https://img.shields.io/badge/python-3.10+-blue.svg" alt="Python 3.10+"></a>
 <a href="https://opensource.org/licenses/MIT"><img src="https://img.shields.io/badge/License-MIT-yellow.svg" alt="License: MIT"></a>
 
-**Building a Serverless RAG Pipeline for Paper Discovery on ArXiv**
+# ArXiv Radar: A Serverless RAG Pipeline for Scientific Discovery
 
 [Live Demo](https://arxiv-radar.streamlit.app)
 
 **ArXiv Radar** is a domain-agnostic data pipeline designed to filter the daily noise of scientific publications. Moving beyond traditional keyword matching, this tool uses 384-dimensional vector embeddings to score ArXiv papers based on semantic relevance, and open-weights Large Language Models (LLMs) to generate strict, one-sentence technical insights for top-ranking papers.
+
+## Key Features:
+1. **Semantic Search:** 384-dimensional vector retrieval (in-memory, no heavy databases).
+2. **BYOK Architecture:** Distributes API loads to prevent rate-limiting bottlenecks.
+3. **CI/CD Monitored:** Automated testing for Retrieval Accuracy (MRR) and LLM hallucinations.
+4. **Fully Serverless:** Hosted on Streamlit Community Cloud.
 
 <p align="center">
   <img src="architecture.png" alt="ArXiv Radar Architecture" width="150">
@@ -74,7 +80,7 @@ A parameterized `pytest` suite runs automatically via GitHub Actions on every co
 
 1. Clone the repository and navigate to the project directory:
 ```bash
-   git clone https://github.com/YOUR_USERNAME/arxiv-radar.git
+   git clone https://github.com/devimisra/arxiv-radar.git
    cd arxiv-radar
 ```
 2. Install the required dependencies:
