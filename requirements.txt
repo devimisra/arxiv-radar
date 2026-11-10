@@ -5,3 +5,4 @@ pytest
 langchain-huggingface
 huggingface-hub
 sentence-transformers
+openai>=1.0.0
