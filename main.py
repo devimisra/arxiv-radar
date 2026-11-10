@@ -112,11 +112,27 @@ with st.sidebar:
     st.header("Search & Security Settings")
     
     backend_token = st.secrets.get("HF_TOKEN", "")
+    # user_token = st.text_input(
+    #     "Hugging Face Token", 
+    #     type="password", 
+    #     help="Get one at huggingface.co/settings/tokens",
+    #     key="hf_token_input"
+    # )
+    
+    # active_token = user_token if user_token else backend_token
+    
+    # if not active_token:
+    #     st.error("Token required for AI insights.")
+    # elif user_token:
+    #     st.success("Custom AI Engine Authenticated")
+    # else:
+    #     st.warning("Using shared Demo Token. You may experience rate limits. For heavy use, please enter your own token or clone the repository.")
+
     user_token = st.text_input(
-        "Hugging Face Token", 
+        "Groq API Key", 
         type="password", 
-        help="Get one at huggingface.co/settings/tokens",
-        key="hf_token_input"
+        help="Get a free key at console.groq.com",
+        key="groq_key_input"
     )
     
     active_token = user_token if user_token else backend_token
@@ -125,14 +141,12 @@ with st.sidebar:
         st.error("Token required for AI insights.")
     elif user_token:
         st.success("Custom AI Engine Authenticated")
-    else:
-        st.warning("Using shared Demo Token. You may experience rate limits. For heavy use, please enter your own token or clone the repository.")
 
+    # Update to Groq's supported models
     model_options = [
-        "HuggingFaceH4/zephyr-7b-beta", 
-        "microsoft/Phi-3-mini-4k-instruct",
-        "mistralai/Mistral-7B-Instruct-v0.2",
-        "Custom (Enter Model ID)"
+        "llama-3.1-8b-instant", 
+        "gemma2-9b-it",
+        "mixtral-8x7b-32768"
     ]
     
     model_selection = st.selectbox("AI Summary Model", model_options, index=0, key="model_select_box")

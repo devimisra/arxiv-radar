@@ -3,6 +3,7 @@ from huggingface_hub import InferenceClient
 import numpy as np
 from datetime import datetime, timezone
 import arxiv
+from openai import OpenAI
 
 def load_embedding_model():
     return HuggingFaceEmbeddings(model_name="sentence-transformers/all-MiniLM-L6-v2")
@@ -41,9 +42,16 @@ def filter_papers(papers, cutoff_date, user_interests, embedding_model, score_th
             })
     return top_candidates
 
-def generate_insights(abstract, hf_token, model_id):
-    client = InferenceClient(api_key=hf_token)
+
+def generate_insights(abstract, api_key, model_id="llama-3.1-8b-instant"):
+    # Groq uses the standard OpenAI python client
+    client = OpenAI(
+        api_key=api_key,
+        base_url="https://api.groq.com/openai/v1"
+    )
+    
     prompt = f"Abstract: {abstract}\nTask: Provide 3 relevant technical tags and 1 punchy hook (1 sentence max). Format: TAGS: x, y | HOOK: z"
+    
     try:
         response = client.chat.completions.create(
             model=model_id,
