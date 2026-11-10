@@ -129,11 +129,11 @@ with st.sidebar:
         st.warning("Using shared Demo Token. You may experience rate limits. For heavy use, please enter your own token or clone the repository.")
 
     model_options = [
-            "HuggingFaceH4/zephyr-7b-beta", 
-            "microsoft/Phi-3-mini-4k-instruct",
-            "mistralai/Mistral-7B-Instruct-v0.2",
-            "Custom (Enter Model ID)"
-        ]
+        "Qwen/Qwen2.5-7B-Instruct", 
+        "meta-llama/Meta-Llama-3.1-8B-Instruct",
+        "google/gemma-2-9b-it",
+        "Custom (Enter Model ID)"
+    ]
     
     model_selection = st.selectbox("AI Summary Model", model_options, index=0, key="model_select_box")
     
